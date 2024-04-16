@@ -6,7 +6,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func (app *appliction) routes() *chi.Mux {
+func (app *application) routes() *chi.Mux {
 	router := chi.NewRouter()
 
 	router.NotFound(func(w http.ResponseWriter, r *http.Request) {

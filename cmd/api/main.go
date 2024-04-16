@@ -16,7 +16,7 @@ type config struct {
 	env  string
 }
 
-type appliction struct {
+type application struct {
 	cfg    config
 	logger *log.Logger
 }
@@ -30,7 +30,7 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	app := appliction{
+	app := application{
 		cfg:    cfg,
 		logger: logger,
 	}
