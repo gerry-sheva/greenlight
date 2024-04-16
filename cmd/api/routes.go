@@ -10,12 +10,10 @@ func (app *application) routes() *chi.Mux {
 	router := chi.NewRouter()
 
 	router.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(404)
-		w.Write([]byte("route does not exist"))
+		app.notFoundErrorResponse(w, r)
 	})
 	router.MethodNotAllowed(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(405)
-		w.Write([]byte("method is not valid"))
+		app.methodNotAllowedErrorResponse(w, r)
 	})
 
 	router.Get("/v1/healthcheck", app.healthCheckHandler)
