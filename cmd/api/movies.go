@@ -6,17 +6,45 @@ import (
 	"time"
 
 	"github.com/gerry-sheva/greenlight.git/internal/data"
+	"github.com/gerry-sheva/greenlight.git/internal/validator"
 	"github.com/go-chi/chi/v5"
 )
 
 func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Created new movie")
+	var input struct {
+		Title   string       `json:"title"`
+		Year    int32        `json:"year"`
+		Runtime data.Runtime `json:"runtime"`
+		Genres  []string     `json:"genres"`
+	}
+
+	err := app.readJSON(w, r, input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	movie := &data.Movie{
+		Title:   input.Title,
+		Year:    input.Year,
+		Runtime: input.Runtime,
+		Genres:  input.Genres,
+	}
+
+	v := validator.New()
+
+	if data.ValidateMovie(v, movie); !v.Validate() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
+	fmt.Fprintf(w, "%+v\n", input)
 }
 
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
-	movie := data.Movies{
+	movie := data.Movie{
 		ID:        id,
 		CreatedAt: time.Now(),
 		Title:     "Casablanca",
