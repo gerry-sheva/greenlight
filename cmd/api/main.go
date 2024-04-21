@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gerry-sheva/greenlight.git/internal/data"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -22,6 +23,7 @@ type config struct {
 type application struct {
 	cfg    config
 	logger *log.Logger
+	models data.Models
 }
 
 func main() {
@@ -33,17 +35,18 @@ func main() {
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 
-	app := application{
-		cfg:    cfg,
-		logger: logger,
-	}
-
 	dbPool, err := openDB()
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	defer dbPool.Close()
+
+	app := application{
+		cfg:    cfg,
+		logger: logger,
+		models: data.NewModels(dbPool),
+	}
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),

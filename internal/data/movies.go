@@ -1,10 +1,10 @@
 package data
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/gerry-sheva/greenlight.git/internal/validator"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Movie struct {
@@ -18,7 +18,7 @@ type Movie struct {
 }
 
 type MovieModel struct {
-	DB *sql.DB
+	DB *pgxpool.Pool
 }
 
 func ValidateMovie(v *validator.Validator, movie *Movie) {
