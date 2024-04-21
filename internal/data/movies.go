@@ -1,19 +1,24 @@
 package data
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/gerry-sheva/greenlight.git/internal/validator"
 )
 
 type Movie struct {
-	ID        string    `json:"id"`
+	ID        int64     `json:"id"`
 	CreatedAt time.Time `json:"-"`
 	Title     string    `json:"title"`
 	Year      int32     `json:"year,omitempty"`
 	Runtime   Runtime   `json:"runtime,omitempty"`
 	Genres    []string  `json:"genres,omitempty"`
 	Version   int32     `json:"version"`
+}
+
+type MovieModel struct {
+	DB *sql.DB
 }
 
 func ValidateMovie(v *validator.Validator, movie *Movie) {
@@ -31,4 +36,20 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 	v.Check(len(movie.Genres) >= 1, "genres", "must contain at least 1 genre")
 	v.Check(len(movie.Genres) <= 5, "genres", "must not contain more than 5 genres")
 	v.Check(validator.Unique(movie.Genres), "genres", "must not contain duplicate values")
+}
+
+func (m Movie) Insert(movie *Movie) error {
+	return nil
+}
+
+func (m Movie) Get(id int64) (*Movie, error) {
+	return nil, nil
+}
+
+func (m Movie) Update(movie *Movie) error {
+	return nil
+}
+
+func (m Movie) Delete(id int64) error {
+	return nil
 }

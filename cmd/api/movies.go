@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gerry-sheva/greenlight.git/internal/data"
@@ -42,7 +43,11 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request) {
-	id := chi.URLParam(r, "id")
+	idParam := chi.URLParam(r, "id")
+	id, err := strconv.ParseInt(idParam, 10, 64)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+	}
 
 	movie := data.Movie{
 		ID:        id,
@@ -52,7 +57,7 @@ func (app *application) showMovieHandler(w http.ResponseWriter, r *http.Request)
 		Genres:    []string{"War", "Romance"},
 		Version:   1,
 	}
-	err := app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
+	err = app.writeJSON(w, http.StatusOK, envelope{"movie": movie}, nil)
 	if err != nil {
 		app.serverErrorResponse(w, r, err)
 	}
