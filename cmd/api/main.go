@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const version = "1.0.0"
@@ -35,6 +38,13 @@ func main() {
 		logger: logger,
 	}
 
+	dbPool, err := openDB()
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	defer dbPool.Close()
+
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
 		Handler:      app.routes(),
@@ -44,6 +54,25 @@ func main() {
 	}
 
 	logger.Printf("Starting %s server on %d", cfg.env, cfg.port)
-	err := srv.ListenAndServe()
+	err = srv.ListenAndServe()
 	logger.Fatal(err)
+}
+
+func openDB() (*pgxpool.Pool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	dbpool, err := pgxpool.New(ctx, "host=localhost port=5432 user=baloo password=junglebook dbname=greenlight sslmode=disable")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
+		os.Exit(1)
+	}
+	defer dbpool.Close()
+
+	err = dbpool.Ping(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return dbpool, nil
 }
